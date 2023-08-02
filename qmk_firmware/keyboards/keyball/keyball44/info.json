@@ -1,12 +1,43 @@
 {
   "keyboard_name": "Keyball44",
+  "manufacturer": "Yowkees",
   "url": "",
   "maintainer": "Yowkees",
-  "manufacturer": "Yowkees",
   "usb": {
     "vid": "0x5957",
     "pid": "0x0400",
     "device_version": "0.0.1"
+  },
+  "debounce": 5,
+  "diode_direction": "COL2ROW",
+  "matrix_pins": {
+    "cols": ["D4", "C6", "D7", "E6", "B4", "B5"]
+    "rows": ["F4", "F5", "F6", "F7"],
+  },
+  "ws2812": {
+    "pin": "D3",
+  }
+  "rgblight": {
+    "led_count": 60,
+    "split": true,
+    "split_count": [30, 30],
+    "sleep": false,
+    "animations": {
+      "alternating": true,
+      "breathing": true,
+      "christmas": true,
+      "knight": true,
+      "rainbow_mood": true,
+      "rainbow_swirl": true,
+      "rgb_test": false,
+      "snake": true,
+      "static_gradient": true,
+      "twinkle": true
+    },
+    "max_brightness": 150,
+    "hue_steps": 17,
+    "saturation_steps": 17,
+    "brightness_steps": 15
   },
   "layout_aliases": {
     "LAYOUT": "LAYOUT_right_ball",
