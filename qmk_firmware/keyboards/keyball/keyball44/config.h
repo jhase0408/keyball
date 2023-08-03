@@ -19,8 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // Key matrix parameters
-#define MATRIX_ROWS         (4 * 2)  // split keyboard
-#define MATRIX_COLS         6
 #define MATRIX_MASKED
 
 #define SPLIT_TRANSACTION_IDS_KB KEYBALL_GET_INFO, KEYBALL_GET_MOTION, KEYBALL_SET_CPI
