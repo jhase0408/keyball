@@ -16,7 +16,6 @@
   "split": {
     "enabled": true,
     "soft_serial_pin": "D2",
-    "matrix_grid": ["F7", "D4"],
     "usb_detect": {
       "enabled": true,
       "timeout": 500,
@@ -43,15 +42,21 @@
       "knight": true,
       "rainbow_mood": true,
       "rainbow_swirl": true,
-      "rgb_test": false,
+      "rgb_test": true,
       "snake": true,
       "static_gradient": true,
       "twinkle": true
     },
-    "max_brightness": 150,
+    "max_brightness": 125,
     "hue_steps": 17,
     "saturation_steps": 17,
-    "brightness_steps": 15
+    "brightness_steps": 15,
+    "layers": {
+        "enabled": true,
+        "blink": true,
+        "override_rgb": true
+        "max": 8
+    }
   },
   "layout_aliases": {
     "LAYOUT": "LAYOUT_right_ball",

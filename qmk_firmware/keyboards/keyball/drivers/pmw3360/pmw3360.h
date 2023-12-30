@@ -69,7 +69,7 @@ void pmw3360_cpi_set(uint8_t cpi);
 // Register operations
 
 /// pmw3360_reg_write writes a value to a register.
-void pmw3360_reg_write(uint8_t addr, uint8_t data);
+bool pmw3360_reg_write(uint8_t addr, uint8_t data);
 
 /// pmw3360_reg_read reads a value from a register.
 uint8_t pmw3360_reg_read(uint8_t addr);

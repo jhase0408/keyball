@@ -250,6 +250,11 @@ report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
 #ifdef SPLIT_KEYBOARD
 
 static void rpc_get_info_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
+    keyball.that_enable = true;
+    if (in_data){
+        keyball.that_have_ball = ((keyball_info_t*)in_data)->ballcnt > 0;
+    }
+
     keyball_info_t info = {
         .ballcnt = keyball.this_have_ball ? 1 : 0,
     };
@@ -267,8 +272,11 @@ static void rpc_get_info_invoke(void) {
     }
     last_sync = now;
     round++;
+    keyball_info_t send = {
+        .ballcnt = keyball.this_have_ball ? 1 : 0,
+    };
     keyball_info_t recv = {0};
-    if (!transaction_rpc_exec(KEYBALL_GET_INFO, 0, NULL, sizeof(recv), &recv)) {
+    if (!transaction_rpc_exec(KEYBALL_GET_INFO, sizeof(send), &send, sizeof(recv), &recv)) {
         if (round < KEYBALL_TX_GETINFO_MAXTRY) {
             dprintf("keyball:rpc_get_info_invoke: missed #%d\n", round);
             return;
@@ -480,6 +488,10 @@ void housekeeping_task_kb(void) {
     }
 }
 #endif
+
+// extern uint8_t ball_init_phase;
+// extern uint8_t pmw_pid;
+// extern uint8_t pmw_rev;
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     // store last keycode, row, and col for OLED

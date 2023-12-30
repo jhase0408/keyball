@@ -23,25 +23,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PMW3360_CLOCKS 2000000
 
 bool pmw3360_spi_start(void) {
-    return spi_start(PMW3360_NCS_PIN, false, PMW3360_SPI_MODE, PMW3360_SPI_DIVISOR);
+    // return spi_start(PMW3360_NCS_PIN, false, PMW3360_SPI_MODE, PMW3360_SPI_DIVISOR);
+    if (!spi_start(PMW3360_NCS_PIN, false, 3, PMW3360_SPI_DIVISOR)) {
+        spi_stop();
+        return false;
+    }
+    // tNCS-SCLK, 10ns
+    wait_us(1);
+    return true;
 }
 
 uint8_t pmw3360_reg_read(uint8_t addr) {
-    pmw3360_spi_start();
+    if (!pmw3360_spi_start()) {
+        return 0;
+    }
     spi_write(addr & 0x7f);
     wait_us(160);
     uint8_t data = spi_read();
+    wait_us(1);
     spi_stop();
-    wait_us(20);
+    wait_us(19);
     return data;
 }
 
-void pmw3360_reg_write(uint8_t addr, uint8_t data) {
-    pmw3360_spi_start();
-    spi_write(addr | 0x80);
-    spi_write(data);
+bool pmw3360_reg_write(uint8_t addr, uint8_t data) {
+    if(!pmw3360_spi_start()) {
+        return false;
+    };
+    uint8_t command[2] = {addr | 0x80, data};
+    if (spi_transmit(command, sizeof(command)) != SPI_STATUS_SUCCESS) {
+        return false;
+    }
+    wait_us(35);
     spi_stop();
-    wait_us(180);
+    wait_us(145);
+    return true;
 }
 
 uint8_t pmw3360_cpi_get(void) {
@@ -112,12 +128,30 @@ bool pmw3360_motion_burst(pmw3360_motion_t *d) {
     return true;
 }
 
+// uint8_t ball_init_phase = 0;
+// uint8_t pmw_pid = 0;
+// uint8_t pmw_rev = 0; 
+
 bool pmw3360_init(void) {
     spi_init();
+    // ball_init_phase = 1;
     setPinOutput(PMW3360_NCS_PIN);
+    // ball_init_phase = 2;
     // reboot
-    pmw3360_spi_start();
-    pmw3360_reg_write(pmw3360_Power_Up_Reset, 0x5a);
+    if (!pmw3360_spi_start()){
+        return false;
+    }
+    // ball_init_phase = 3;
+
+    wait_us(40);
+    spi_stop();
+    // ball_init_phase = 4;
+    wait_us(40);
+
+    if (!pmw3360_reg_write(pmw3360_Power_Up_Reset, 0x5a)) {
+        return false;
+    };
+    // ball_init_phase = 5;
     wait_ms(50);
     // read five registers of motion and discard those values
     pmw3360_reg_read(pmw3360_Motion);
@@ -125,11 +159,24 @@ bool pmw3360_init(void) {
     pmw3360_reg_read(pmw3360_Delta_X_H);
     pmw3360_reg_read(pmw3360_Delta_Y_L);
     pmw3360_reg_read(pmw3360_Delta_Y_H);
+
+    // ball_init_phase = 6;
     // configuration
-    pmw3360_reg_write(pmw3360_Config2, 0x00);
+    if (!pmw3360_reg_write(pmw3360_Config2, 0x00)) {
+        return false;
+    }
+    // ball_init_phase = 7;
     // check product ID and revision ID
     uint8_t pid = pmw3360_reg_read(pmw3360_Product_ID);
     uint8_t rev = pmw3360_reg_read(pmw3360_Revision_ID);
+    // ball_init_phase = 8;
     spi_stop();
+    // ball_init_phase = 9;
+    // pmw_pid = pid;
+    // pmw_rev = rev;
+    dprintf("pmw3360 init: pid: 0x%x, rev: 0x%x\n");
+    // if(pid == 0x42 && rev == 0x01) {
+    //   ball_init_phase = 10;
+    // }
     return pid == 0x42 && rev == 0x01;
 }
